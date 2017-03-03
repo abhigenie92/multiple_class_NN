@@ -178,7 +178,7 @@ class MLP:
                 for k in batch_indexes:  
                     y_bdx=int(y.item(k))
                     l=self.forward_prop(np.transpose(X[k,:]),y_bdx )
-                    loss=+l
+                    loss+=l
                     self.back_prop( y_bdx)
                 for i,layer in enumerate(self.layers):
                     if i == len(NN.layers) - 1:
