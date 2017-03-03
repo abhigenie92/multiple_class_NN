@@ -82,8 +82,8 @@ class HiddenLayer:
         int1=np.multiply(fu_2,dldh)
         dldw=self.x*int1.T
         dldb=np.multiply(fu_2,dldh)
-        self.dldw_net=+dldw
-        self.dldb_net=+dldb
+        self.dldw_net+=dldw
+        self.dldb_net+=dldb
         return dldh
 
     def update_weights(self,lr,reg_param):
@@ -118,8 +118,8 @@ class OutputLayer:
     def backward_prop(self,dldz):
         dldw=self.x*dldz.T # self.x is the input to the network
         dldb=dldz
-        self.dldw_net=+dldw
-        self.dldb_net=+dldb
+        self.dldw_net+=dldw
+        self.dldb_net+=dldb
         dldh= np.matrix(self.w)*np.matrix(dldz)
         return dldh
 
@@ -166,7 +166,7 @@ class MLP:
         
             
     def training(self,num_epochs,bsize,reg_param=0, learning_rate=0.001):
-        learning_rate=learning_rate/bsize
+        #learning_rate=learning_rate/bsize
         self.reg_param=reg_param
         N=X.shape[0]
         # include gradient descent here
