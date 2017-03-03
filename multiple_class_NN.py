@@ -166,7 +166,7 @@ class MLP:
         
             
     def training(self,num_epochs,bsize,reg_param=0, learning_rate=0.001):
-        #learning_rate=learning_rate/bsize
+        learning_rate=learning_rate/bsize
         self.reg_param=reg_param
         N=X.shape[0]
         # include gradient descent here
