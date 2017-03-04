@@ -185,6 +185,7 @@ class MLP:
                 for i,layer in enumerate(self.layers):
                     if i == len(NN.layers) - 1:
                         break
+                    print layer
                     layer.update_weights(learning_rate,reg_param)
             if t % 1==0:
                 print t,loss
@@ -271,4 +272,3 @@ for hidden_units in [3,8,16]:
             NN.prediction()
 
 '''
-
