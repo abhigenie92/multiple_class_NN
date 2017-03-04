@@ -56,6 +56,8 @@ y = np.matrix(y.values)
 
 
 ######################################
+
+##Neural network code starts here:
 class HiddenLayer:
     def __init__(self, dim_in, dim_out,method=2):
         self.dim_in,self.dim_out=dim_in, dim_out
@@ -79,6 +81,9 @@ class HiddenLayer:
     def backward_prop(self,dldh):
         #print self.h
         fu_2=(self.u>0).astype(float)
+        print np.max(self.u)
+        if np.isnan(np.min(self.u)):
+            pdb.set_trace()
         int1=np.multiply(fu_2,dldh)
         dldw=self.x*int1.T
         dldb=np.multiply(fu_2,dldh)
@@ -185,7 +190,6 @@ class MLP:
                 for i,layer in enumerate(self.layers):
                     if i == len(NN.layers) - 1:
                         break
-                    print layer
                     layer.update_weights(learning_rate,reg_param)
             if t % 1==0:
                 print t,loss
@@ -252,7 +256,7 @@ if testing:
     NN.add_layer('Hidden', dim_in=2, dim_out=16)
     NN.add_layer('Output', dim_in=16, dim_out=3)
     NN.add_layer('Loss', dim_in=3, dim_out=1)
-    NN.training(150,100,0)
+    NN.training(1500,100,0)
     NN.prediction()
 '''
 for hidden_units in [3,8,16]:
