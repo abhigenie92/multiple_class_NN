@@ -56,8 +56,6 @@ y = np.matrix(y.values)
 
 
 ######################################
-
-##Neural network code starts here:
 class HiddenLayer:
     def __init__(self, dim_in, dim_out,method=2):
         self.dim_in,self.dim_out=dim_in, dim_out
@@ -81,7 +79,7 @@ class HiddenLayer:
     def backward_prop(self,dldh):
         #print self.h
         fu_2=(self.u>0).astype(float)
-        print np.max(self.u)
+        #print np.max(self.u)
         if np.isnan(np.min(self.u)):
             pdb.set_trace()
         int1=np.multiply(fu_2,dldh)
@@ -150,6 +148,7 @@ class LossLayer:
         # y is the correct label
         indicator=np.zeros([self.dim_in,1])
         indicator[y]=-1
+        self.x-=np.max(self.x) # to make it stable
         dldz= indicator+np.exp(self.x.item(y))/np.sum(np.exp(self.x))
         return dldz
               
@@ -254,6 +253,7 @@ testing=True
 if testing:
     NN = MLP()
     NN.add_layer('Hidden', dim_in=2, dim_out=16)
+    NN.add_layer('Hidden', dim_in=16, dim_out=16)
     NN.add_layer('Output', dim_in=16, dim_out=3)
     NN.add_layer('Loss', dim_in=3, dim_out=1)
     NN.training(1500,100,0)
