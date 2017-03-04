@@ -57,7 +57,7 @@ y = np.matrix(y.values)
 
 ######################################
 class HiddenLayer:
-    def __init__(self, dim_in, dim_out,method=1):
+    def __init__(self, dim_in, dim_out,method=2):
         self.dim_in,self.dim_out=dim_in, dim_out
         # initialise weights and biases
         if method==1:
@@ -66,14 +66,14 @@ class HiddenLayer:
             self.b = 0.1*np.random.random((dim_out,1))
         else:
             self.w=np.random.randn(dim_in, dim_out)
-            self.b = 3 * np.random.randn(dim_out,1) + 1
+            self.b = 3 * np.random.randn(dim_out,1) 
         self.dldw_net=np.zeros([dim_in, dim_out])
         self.dldb_net=np.zeros([dim_out,1])
 
     def forward_prop(self,x):
         self.x=x
         self.u = np.dot(np.transpose(self.w), x) + self.b
-        self.h = np.maximum(self.u, 0) # Leaky ReLu
+        self.h = np.fmax(self.u, 0) # Leaky ReLu
         return self.h
 
     def backward_prop(self,dldh):
@@ -84,6 +84,7 @@ class HiddenLayer:
         dldb=np.multiply(fu_2,dldh)
         self.dldw_net+=dldw
         self.dldb_net+=dldb
+        dldh= np.matrix(self.w)*np.matrix(dldh)
         return dldh
 
     def update_weights(self,lr,reg_param):
@@ -94,7 +95,7 @@ class HiddenLayer:
                
     
 class OutputLayer:
-    def __init__(self, dim_in, dim_out,method=1):
+    def __init__(self, dim_in, dim_out,method=2):
         self.dim_in,self.dim_out=dim_in, dim_out
         # initialise weights and biases
         if method==1:
@@ -103,7 +104,7 @@ class OutputLayer:
             self.b =0.1*np.random.random((dim_out,1))
         else:
             self.w=np.random.randn(dim_in, dim_out)
-            self.b = np.random.randn(dim_out,1) + 1
+            self.b = 3* np.random.randn(dim_out,1) 
         self.b = 0.1 * np.random.random((dim_out,1))
         self.dldw_net=np.zeros([dim_in, dim_out])
         self.dldb_net=np.zeros([dim_out,1])
@@ -169,6 +170,7 @@ class MLP:
         learning_rate=learning_rate/bsize
         self.reg_param=reg_param
         N=X.shape[0]
+        losses=[]
         # include gradient descent here
         for t in range(1, num_epochs):
             loss=0                          #eta = 1.0 * np.exp(-t/100.0)
@@ -186,6 +188,10 @@ class MLP:
                     layer.update_weights(learning_rate,reg_param)
             if t % 1==0:
                 print t,loss
+            if t>10:
+                learning_rate=0.0001
+            losses.append(loss)
+        plt.plot(range(1, num_epochs),losses)
     
     def forward_prop(self,x, y):
         # 1. iterate over hidden layers and output layer
@@ -245,7 +251,7 @@ if testing:
     NN.add_layer('Hidden', dim_in=2, dim_out=16)
     NN.add_layer('Output', dim_in=16, dim_out=3)
     NN.add_layer('Loss', dim_in=3, dim_out=1)
-    NN.training(100,100,0)
+    NN.training(150,100,0)
     NN.prediction()
 '''
 for hidden_units in [3,8,16]:
@@ -265,29 +271,4 @@ for hidden_units in [3,8,16]:
             NN.prediction()
 
 '''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
