@@ -310,8 +310,6 @@ class MLP:
                 ax.plot(x1.item(0),x1.item(1),label='-1',marker='o', linestyle='', ms=5,color='y')
     
   
-for y_i in y:
-    y.item(0)
     
 testing=True     
 if testing:
