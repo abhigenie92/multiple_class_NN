@@ -81,7 +81,9 @@ class HiddenLayer:
         # initialise weights and biases
         if method==1:
             self.w=np.random.random((dim_in, dim_out)) - 0.5
-            self.b = np.random.randn(dim_out,1)
+            self.b=np.random.random((dim_out,1)) - 0.5
+            #self.w=np.random.random((dim_in, dim_out)) - 0.5
+            #self.b = np.random.randn(dim_out,1)
             #self.b = 0.1 * np.random.random()
 
             #self.b = np.zeros([dim_out,1]) #0.1*np.random.random((dim_out,1))
@@ -98,8 +100,9 @@ class HiddenLayer:
         self.x=x
         self.u = np.dot(np.transpose(self.w), x) + self.b
         #self.h = np.fmax(self.u, 0.01*self.u) 
-        self.h = np.fmax(self.u, self.u) 
+        self.h = np.fmax(self.u, 0) 
         return self.h
+
 
     def backward_prop(self,dldh):
         #print self.h
@@ -115,9 +118,21 @@ class HiddenLayer:
         self.dldb_net+=dldb
         dldh= np.matrix(self.w)*np.matrix(int1)
         return dldh
+    
+    def backward_prop_prev(self,dldh):
+        f=(self.u>0).astype(float)
+        #fu_2 = 1.0 * (self.u > 0.0) + 0.01 * (self.u < 0.0) 
+   
+        if np.isnan(np.min(self.u)):
+            pdb.set_trace()
+        dldb= np.multiply(f, dldh)
+        dldw = np.dot(self.x, np.transpose(np.multiply(f, dldh)))
+        dldh = self.w*np.multiply(f, dldh)
+#       
+        return dldh
 
     def update_weights(self,lr,reg_param):
-        self.w=self.w-lr * self.dldw_net#+reg_param*self.w
+        self.w=self.w-lr * self.dldw_net+reg_param*self.w
         self.b=self.b-lr * self.dldb_net
         self.dldw_net=np.zeros([self.dim_in, self.dim_out])
         self.dldb_net=np.zeros([self.dim_out,1])
@@ -128,8 +143,10 @@ class OutputLayer:
         # initialise weights and biases
         if method==1:
             self.w=np.random.random((dim_in, dim_out)) - 0.5
+            self.b=np.random.random((dim_out,1)) - 0.5
+            #self.w=np.random.random((dim_in, dim_out)) - 0.5
             #self.b = 0.1 * np.random.random()
-            self.b = np.random.randn(dim_out,1)
+            #self.b = np.random.randn(dim_out,1)
             #self.b =np.zeros([dim_out,1])#0.1*np.random.random((dim_out,1))
         elif method ==2:
             self.w = np.asmatrix(np.random.randn(dim_in, dim_out) / np.sqrt(dim_in))
@@ -156,7 +173,7 @@ class OutputLayer:
         return dldh
 
     def update_weights(self,lr,reg_param):
-        self.w=self.w-lr * self.dldw_net#+reg_param*self.w
+        self.w=self.w-lr * self.dldw_net+reg_param*self.w
         self.b=self.b-lr * self.dldb_net
         self.dldw_net=np.zeros([self.dim_in, self.dim_out])
         self.dldb_net=np.zeros([self.dim_out,1])
@@ -202,7 +219,7 @@ class MLP:
         self.layers.append(layer)
         
             
-    def training(self,num_epochs,bsize,reg_param=0, learning_rate=0.0001):
+    def training(self,num_epochs,bsize,reg_param=0, learning_rate=0.001):
         import copy
         x = copy.deepcopy(NN.layers[1].w)
         learning_rate=learning_rate/bsize
@@ -211,9 +228,10 @@ class MLP:
         losses=[]
         # include gradient descent here
         for t in range(1, num_epochs):
-            eta = .0001 * np.exp(-t/100.0)
+            eta = .001 * np.exp(-t/1000.0)
             learning_rate=eta/bsize
-            loss=0                          #eta = 1.0 * np.exp(-t/100.0)
+            loss=0      
+            prev_loss=0                    #eta = 1.0 * np.exp(-t/100.0)
             samples_indexes=np.random.permutation(N)
             for bdx in range(0,N,bsize):
                 batch_indexes=samples_indexes[bdx:bdx+bsize]
@@ -227,15 +245,15 @@ class MLP:
                     if i == len(NN.layers) - 1:
                         break
                     layer.update_weights(learning_rate,reg_param)
-            if t % 5 ==0:
+            if t % 10 ==0:
                 print t, loss
                 #print NN.layers[1].w
                 #if np.any(np.equal(x,NN.layers[1].w))==False:
                 #    pdb.set_trace()
                 
                     
-            if t % 25 and t>1==0:
-                pass
+            if prev_loss>loss:
+                break
                 #self.prediction()
             #losses.append(loss)
         #plt.plot(range(1, num_epochs),losses)
@@ -291,25 +309,25 @@ class MLP:
             elif prediction ==2:
                 ax.plot(x1.item(0),x1.item(1),label='-1',marker='o', linestyle='', ms=5,color='y')
     
-
+  
+for y_i in y:
+    y.item(0)
+    
 testing=True     
 if testing:
     NN = MLP()
     NN.add_layer('Hidden', dim_in=2, dim_out=16)
-    NN.add_layer('Hidden', dim_in=16, dim_out=16)
-    NN.add_layer('Hidden', dim_in=16, dim_out=16)
+ 
     NN.add_layer('Output', dim_in=16, dim_out=3)
     NN.add_layer('Loss', dim_in=3, dim_out=1)
-    NN.training(1500,100,0)
+    NN.training(10000,100,0)
     NN.prediction()
-'''
+
 for hidden_units in [3,8,16]:
     # constructing the network
     for layer in [1,2]:
         for reg_param in [0.01]:
             print hidden_units, layer,reg_param
-            
-            
             NN = MLP()
             NN.add_layer('Hidden', dim_in=2, dim_out=hidden_units)
             if layer ==2:
@@ -318,7 +336,6 @@ for hidden_units in [3,8,16]:
             NN.add_layer('Loss', dim_in=3, dim_out=1)
             
             # training and prediction
-            NN.training(10,100,reg_param)
+            NN.training(1200,100,reg_param)
             NN.prediction()
 
-'''
